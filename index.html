@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Firebase Example</title>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+  <script>
+
+// TODO: Add your Firebase project configuration here
+  const firebaseConfig = {
+    apiKey: "AIzaSyD6dPQ12QCMAP5O34vys9A_gBcVr2sEYbs",
+    authDomain: "daten2a.firebaseapp.com",
+    databaseURL: "https://daten2a-default-rtdb.europe-west1.firebasedatabase.app/",
+    projectId: "daten2a",
+    storageBucket: "daten2a.appspot.com",
+    messagingSenderId: "246343344977",
+    appId: "1:246343344977:web:4823e18def94d80d63e970"
+  };
+
+// Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  </script>
+
+</head>
+<body>
+  <h1>Firebase Example</h1>
+  <form id="dataForm">
+    <input type="text" id="name" placeholder="Name">
+    <input type="text" id="value" placeholder="Wert">
+    <button type="submit">Speichern</button>
+  </form>
+
+  <script>
+    document.getElementById('dataForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const value = document.getElementById('value').value;
+
+      // Reference to the Firebase Realtime Database
+      const database = firebase.database();
+      const ref = database.ref('items');
+
+      // Push new data to the database
+      ref.push({
+        zahl: 34,
+        name: name,
+        value: value
+      }).then(() => {
+        alert('Daten erfolgreich gespeichert');
+      }).catch((error) => {
+        console.error('Fehler beim Speichern der Daten:', error);
+      });
+    });
+  </script>
+</body>
+</html>

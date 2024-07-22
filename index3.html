@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Firebase Example</title>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+  <script>
+
+// TODO: Add your Firebase project configuration here
+  const firebaseConfig = {
+    apiKey: "AIzaSyD6dPQ12QCMAP5O34vys9A_gBcVr2sEYbs",
+    authDomain: "daten2a.firebaseapp.com",
+    databaseURL: "https://daten2a-default-rtdb.europe-west1.firebasedatabase.app/",
+    projectId: "daten2a",
+    storageBucket: "daten2a.appspot.com",
+    messagingSenderId: "246343344977",
+    appId: "1:246343344977:web:4823e18def94d80d63e970"
+  };
+
+// Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  </script>
+
+  <style>
+    .item {
+      margin: 10px 0;
+    }
+    .item input {
+      margin-right: 5px;
+    }
+    .item button {
+      margin-left: 5px;
+    }
+  </style>
+
+</head>
+<body>
+  <h1>Firebase Example V3.1</h1>
+  <form id="didataForm">
+    <input type="text" id="diname" placeholder="Name">
+    <input type="text" id="divalue" placeholder="Wert">
+    <button type="submit">Speichern</button>
+  </form>
+
+  <h2>Gespeicherte Daten</h2>
+  <div id="didataContainer"></div>
+
+  <script>
+    const database = firebase.database();
+    const ref = database.ref('items');
+
+    // Listen for form submission
+    document.getElementById('didataForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const dbname = document.getElementById('diname').value;
+      const dbvalue = document.getElementById('divalue').value;
+
+      ref.push({
+        name: dbname,
+        value: dbvalue
+      }).then(() => {
+console.log("Daten erfolgreich geändert/neu")
+//        alert('Daten erfolgreich gespeichert');
+        document.getElementById('diname').value = '';
+        document.getElementById('divalue').value = '';
+      }).catch((error) => {
+        console.error('Fehler beim Speichern der Daten:', error);
+      });
+    });
+
+    // Function to render data
+    function renderData(snapshot) {
+      const dataContainer = document.getElementById('didataContainer');
+      dataContainer.innerHTML = 'Datensätze aus Firebase-DB:';
+      snapshot.forEach((childSnapshot) => {
+        const item = childSnapshot.val();
+        const itemId = childSnapshot.key;
+
+        const xdiv = document.createElement('div');
+        xdiv.classList.add('item');
+        xdiv.innerHTML = `N: 
+          <input type="text" id="name-${itemId}" value="${item.name}"> W: 
+          <input type="text" id="value-${itemId}" value="${item.value}">
+          <button onclick="updateItem('${itemId}')">Update</button>
+          <button onclick="deleteItem('${itemId}')">Delete</button>
+        `;
+        dataContainer.appendChild(xdiv);
+      });
+    }
+
+    // Listen for changes in the database
+    ref.on('value', (snapshot) => {
+      renderData(snapshot);
+    });
+
+    // Function to update an item
+    window.updateItem = function(itemId) {
+      const dbupname = document.getElementById(`name-${itemId}`).value;
+      const dbupvalue = document.getElementById(`value-${itemId}`).value;
+
+      ref.child(itemId).update({
+        name: dbupname,
+        value: dbupvalue
+      }).then(() => {
+console.log("Daten erfolgreich geändert/edit")
+//        alert('Daten erfolgreich aktualisiert');
+      }).catch((error) => {
+        console.error('Fehler beim Aktualisieren der Daten:', error);
+      });
+    }
+
+    // Function to delete an item
+    window.deleteItem = function(itemId) {
+      ref.child(itemId).remove().then(() => {
+        console.log("Daten erfolgreich geändert/del")
+        //        alert('Daten erfolgreich gelöscht');
+      }).catch((error) => {
+        console.error('Fehler beim Löschen der Daten:', error);
+      });
+    }
+  </script>
+</body>
+</html>

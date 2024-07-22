@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Firebase Example</title>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <script>
+    // TODO: Add your Firebase project configuration here
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyD67kM9IKBDH65NdVyz-TGNWjREGjkIA4Y",
+  authDomain: "daten2b.firebaseapp.com",
+  databaseURL: "https://daten2b-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "daten2b",
+  storageBucket: "daten2b.appspot.com",
+  messagingSenderId: "272652111561",
+  appId: "1:272652111561:web:28b3db8aab6917687d0718",
+//  measurementId: "G-X12ZY110M7"
+};
+
+/*    const firebaseConfig = {
+    apiKey: "AIzaSyD6dPQ12QCMAP5O34vys9A_gBcVr2sEYbs",
+    authDomain: "daten2a.firebaseapp.com",
+    databaseURL: "https://daten2a-default-rtdb.europe-west1.firebasedatabase.app/",
+    projectId: "daten2a",
+    storageBucket: "daten2a.appspot.com",
+    messagingSenderId: "246343344977",
+    appId: "1:246343344977:web:4823e18def94d80d63e970"
+  };
+*/
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <style>
+    .item {
+      margin: 10px 0;
+    }
+    .item input {
+      margin-right: 5px;
+    }
+    .item button {
+      margin-left: 5px;
+    }
+    #messages {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f8f8f8;
+    }
+  </style>
+</head>
+<body>
+  <h1>Firebase Example V5 (neue DB-Felder)</h1>
+  <form id="dataForm">
+    <input type="text" id="name" placeholder="Nachname">
+    <input type="text" id="vorname" placeholder="Vorname">
+    <input type="text" id="value" placeholder="Wert">
+    <button type="submit">Speichern</button>
+  </form>
+
+  <div id="messages"></div>
+
+  <h2>Gespeicherte Daten</h2>
+  <div id="dataContainer"></div>
+
+  <script>
+    const database = firebase.database();
+    const ref = database.ref('items');
+
+    // Funktion zur Ausgabe von Nachrichten
+    function displayMessage(message) {
+      const messagesDiv = document.getElementById('messages');
+      messagesDiv.textContent = message;
+    }
+
+    // Listen for form submission
+    document.getElementById('dataForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const vorname = document.getElementById('vorname').value;
+      const value = document.getElementById('value').value;
+
+      ref.push({
+        name: name,
+        vorname: vorname,
+        value: value
+      }).then(() => {
+        displayMessage('Daten erfolgreich gespeichert');
+        document.getElementById('name').value = '';
+        document.getElementById('vorname').value = '';
+        document.getElementById('value').value = '';
+      }).catch((error) => {
+        displayMessage('Fehler beim Speichern der Daten: ' + error.message);
+      });
+    });
+
+    // Function to render data
+    function renderData(snapshot) {
+      const dataContainer = document.getElementById('dataContainer');
+      dataContainer.innerHTML = '';
+      snapshot.forEach((childSnapshot) => {
+        const item = childSnapshot.val();
+        const itemId = childSnapshot.key;
+
+        const div = document.createElement('div');
+        div.classList.add('item');
+        div.innerHTML = `
+          <input type="text" id="name-${itemId}" value="${item.name}">
+          <input type="text" id="vorname-${itemId}" value="${item.vorname}">
+          <input type="text" id="value-${itemId}" value="${item.value}">
+          <button onclick="updateItem('${itemId}')">Update</button>
+          <button onclick="deleteItem('${itemId}')">Delete</button>
+        `;
+        dataContainer.appendChild(div);
+      });
+    }
+
+    // Listen for changes in the database
+    ref.on('value', (snapshot) => {
+      renderData(snapshot);
+    });
+
+    // Function to update an item
+    window.updateItem = function(itemId) {
+      const name = document.getElementById(`name-${itemId}`).value;
+      const vorname = document.getElementById(`vorname-${itemId}`).value;
+      const value = document.getElementById(`value-${itemId}`).value;
+
+      ref.child(itemId).update({
+        name: name,
+        vorname: vorname,
+        value: value
+      }).then(() => {
+        displayMessage('Daten erfolgreich aktualisiert');
+      }).catch((error) => {
+        displayMessage('Fehler beim Aktualisieren der Daten: ' + error.message);
+      });
+    }
+
+    // Function to delete an item
+    window.deleteItem = function(itemId) {
+      ref.child(itemId).remove().then(() => {
+        displayMessage('Daten erfolgreich gelöscht');
+      }).catch((error) => {
+        displayMessage('Fehler beim Löschen der Daten: ' + error.message);
+      });
+    }
+  </script>
+</body>
+</html>
